@@ -1,4 +1,4 @@
-module github.com/anduril/sample-app-objects
+module sample-app-objects
 
 go 1.23.0
 

@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"bytes"
@@ -16,12 +16,6 @@ import (
 	"ghe.anduril.dev/platform/object-store/pkg/object-store/option"
 	"github.com/alecthomas/kong"
 )
-
-func main() {
-	ctx := kong.Parse(&cli{})
-	err := ctx.Run()
-	ctx.FatalIfErrorf(err)
-}
 
 type cli struct {
 	Delete         deleteCmd         `cmd:"" help:"Remove path from object store."`
