@@ -1,14 +1,22 @@
-# ghe.anduril.dev/platform/object-store v0.8.7
-## explicit; go 1.23.0
-ghe.anduril.dev/platform/object-store/pkg/object-store
-ghe.anduril.dev/platform/object-store/pkg/object-store/client
-ghe.anduril.dev/platform/object-store/pkg/object-store/core
-ghe.anduril.dev/platform/object-store/pkg/object-store/internal
-ghe.anduril.dev/platform/object-store/pkg/object-store/objects
-ghe.anduril.dev/platform/object-store/pkg/object-store/option
 # github.com/alecthomas/kong v1.11.0
 ## explicit; go 1.20
 github.com/alecthomas/kong
+# github.com/anduril/lattice-sdk-go/v2 v2.2.0
+## explicit; go 1.18
+github.com/anduril/lattice-sdk-go/v2
+github.com/anduril/lattice-sdk-go/v2/client
+github.com/anduril/lattice-sdk-go/v2/core
+github.com/anduril/lattice-sdk-go/v2/entities
+github.com/anduril/lattice-sdk-go/v2/internal
+github.com/anduril/lattice-sdk-go/v2/objects
+github.com/anduril/lattice-sdk-go/v2/option
+github.com/anduril/lattice-sdk-go/v2/tasks
+# github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
+## explicit
 # github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
+# github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
+## explicit
+# github.com/stretchr/testify v1.10.0
+## explicit; go 1.17

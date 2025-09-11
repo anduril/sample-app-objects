@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"time"
 
-	api "ghe.anduril.dev/platform/object-store/pkg/object-store"
-	"ghe.anduril.dev/platform/object-store/pkg/object-store/client"
-	"ghe.anduril.dev/platform/object-store/pkg/object-store/option"
 	"github.com/alecthomas/kong"
+	api "github.com/anduril/lattice-sdk-go/v2"
+	client "github.com/anduril/lattice-sdk-go/v2/client"
+	option "github.com/anduril/lattice-sdk-go/v2/option"
 )
 
 type cli struct {
@@ -31,13 +31,8 @@ type deleteCmd struct {
 }
 
 func (d *deleteCmd) Run(kongCtx *kong.Context) error {
-	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", d.LatticeVMToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", d.LatticeEnvToken))
-	objectStoreClient := client.NewClient(
-		option.WithBaseURL(d.BaseURL),
-		option.WithHTTPHeader(header),
-	)
+	objectStoreClient := objectStoreClient(d.BaseURL, d.LatticeVMToken, d.LatticeEnvToken, nil)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -65,16 +60,14 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 		ttl = parsedDuration
 	}
 
-	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", u.LatticeVMToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", u.LatticeEnvToken))
-	if len(u.TimeToLive) != 0 {
-		header.Add("Time-To-Live", strconv.FormatInt(int64(ttl), 10))
-	}
+	ttlHeader := http.Header{}
+	ttlHeader.Add("Time-To-Live", strconv.FormatInt(int64(ttl), 10))
 
-	objectStoreClient := client.NewClient(
-		option.WithBaseURL(u.BaseURL),
-		option.WithHTTPHeader(header),
+	objectStoreClient := objectStoreClient(
+		u.BaseURL,
+		u.LatticeVMToken,
+		u.LatticeEnvToken,
+		ttlHeader,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -84,7 +77,7 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 		return fmt.Errorf("unable to open file %q: %w", u.InputPath, err)
 	}
 	defer fileReader.Close()
-	// TODO: Update this to support io.Reader when Fern adds support for it.
+
 	fileBytes, err := io.ReadAll(fileReader)
 	if err != nil {
 		return fmt.Errorf("unable to read bytes for file %q: %w", u.InputPath, err)
@@ -108,18 +101,12 @@ type objectMetadataCmd struct {
 }
 
 func (o *objectMetadataCmd) Run(kongCtx *kong.Context) error {
-	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", o.LatticeVMToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", o.LatticeEnvToken))
-	objectStoreClient := client.NewClient(
-		option.WithBaseURL(o.BaseURL),
-		option.WithHTTPHeader(header),
-	)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.LatticeVMToken, o.LatticeEnvToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	header, err := objectStoreClient.Objects.GetObjectMetadata(ctx, o.Path)
+	header, err := objectStoreClient.Objects.WithRawResponse.GetObjectMetadata(ctx, o.Path)
 	if err != nil {
 		return fmt.Errorf("unable to get object metadata for path %q, err=%w", o.Path, err)
 	}
@@ -139,13 +126,7 @@ type getCmd struct {
 }
 
 func (o *getCmd) Run(kongCtx *kong.Context) error {
-	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", o.LatticeVMToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", o.LatticeEnvToken))
-	objectStoreClient := client.NewClient(
-		option.WithBaseURL(o.BaseURL),
-		option.WithHTTPHeader(header),
-	)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.LatticeVMToken, o.LatticeEnvToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -176,13 +157,8 @@ type listCmd struct {
 }
 
 func (l *listCmd) Run(kongCtx *kong.Context) error {
-	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", l.LatticeVMToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", l.LatticeEnvToken))
-	objectStoreClient := client.NewClient(
-		option.WithBaseURL(l.BaseURL),
-		option.WithHTTPHeader(header),
-	)
+	objectStoreClient := objectStoreClient(l.BaseURL, l.LatticeVMToken, l.LatticeEnvToken, nil)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -215,7 +191,28 @@ func pathMetadataStr(pathMetadata *api.PathMetadata) (string, error) {
 		return "", fmt.Errorf("unable to parse response %v as JSON: %w", pathMetadata, err)
 	}
 	return string(enc), nil
+}
 
+func objectStoreClient(
+	url string,
+	vmToken string,
+	latticeToken string,
+	additionalHeaders http.Header,
+) *client.Client {
+	header := http.Header{}
+	header.Add("authorization", fmt.Sprintf("Bearer %s", vmToken))
+	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", latticeToken))
+
+	for headerKey, headerValues := range additionalHeaders {
+		for _, headerValue := range headerValues {
+			header.Add(headerKey, headerValue)
+		}
+	}
+
+	return client.NewClient(
+		option.WithBaseURL(url),
+		option.WithHTTPHeader(header),
+	)
 }
 
 type connectionOpts struct {
