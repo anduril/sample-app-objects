@@ -39,7 +39,7 @@ Every command requires the following connection options:
 - **-v, --lattice-vm-token**: Lattice VM authorization token.
 - **-e, --lattice-env-token**: Lattice environment token.
 
-The CLI supports five subcommands: **delete**, **upload**, **objectMetadata**, **get**, and **list**.
+The CLI supports five subcommands: **delete**, **upload**, **object-metadata**, **get**, and **list**.
 
 ### Command List
 
@@ -78,12 +78,12 @@ Retrieve metadata for a specific object.
 
 Usage:
 ```
-$ sample-app-objects objectMetadata -b <base-url> -v <lattice-vm-token> -e <lattice-env-token> -p <path>
+$ sample-app-objects object-metadata -b <base-url> -v <lattice-vm-token> -e <lattice-env-token> -p <path>
 ```
 
 Example:
 ```
-$ sample-app-objects objectMetadata -b lattice-00000.env.sandboxes.developer.anduril.com -v my-vm-token -e my-env-token -p object/file.txt
+$ sample-app-objects object-metadata -b lattice-00000.env.sandboxes.developer.anduril.com -v my-vm-token -e my-env-token -p my-prefix/file.txt
 ```
 
 #### Get
@@ -101,7 +101,7 @@ $ sample-app-objects get -b <base-url> -v <lattice-vm-token> -e <lattice-env-tok
 
 Example:
 ```
-$ sample-app-objects get -b lattice-00000.env.sandboxes.developer.anduril.com -v my-vm-token -e my-env-token -p object/file.txt -o ./downloaded.txt
+$ sample-app-objects get -b lattice-00000.env.sandboxes.developer.anduril.com -v my-vm-token -e my-env-token -p my-prefix/file.txt -o ./downloaded.txt
 ```
 
 #### List
