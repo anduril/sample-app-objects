@@ -1,5 +1,6 @@
 # sample-app-objects
 
+![Sample App](images/app.png)
 
 This CLI provides a set of operations for interacting with the Object Store.
 
