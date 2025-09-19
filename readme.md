@@ -1,4 +1,4 @@
-# sample-app-objects
+# Lattice Objects CLI
 
 ![Sample App](images/app.png)
 
