@@ -31,7 +31,7 @@ type deleteCmd struct {
 }
 
 func (d *deleteCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(d.BaseURL, d.LatticeVMToken, d.LatticeEnvToken, nil)
+	objectStoreClient := objectStoreClient(d.BaseURL, d.EnvironmentToken, d.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -65,8 +65,8 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 
 	objectStoreClient := objectStoreClient(
 		u.BaseURL,
-		u.LatticeVMToken,
-		u.LatticeEnvToken,
+		u.EnvironmentToken,
+		u.SandboxesToken,
 		ttlHeader,
 	)
 
@@ -101,7 +101,7 @@ type objectMetadataCmd struct {
 }
 
 func (o *objectMetadataCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.LatticeVMToken, o.LatticeEnvToken, nil)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.EnvironmentToken, o.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -126,7 +126,7 @@ type getCmd struct {
 }
 
 func (o *getCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.LatticeVMToken, o.LatticeEnvToken, nil)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.EnvironmentToken, o.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -157,7 +157,7 @@ type listCmd struct {
 }
 
 func (l *listCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(l.BaseURL, l.LatticeVMToken, l.LatticeEnvToken, nil)
+	objectStoreClient := objectStoreClient(l.BaseURL, l.EnvironmentToken, l.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -195,13 +195,13 @@ func pathMetadataStr(pathMetadata *api.PathMetadata) (string, error) {
 
 func objectStoreClient(
 	url string,
-	vmToken string,
-	latticeToken string,
+	environmentToken string,
+	sandboxesToken string,
 	additionalHeaders http.Header,
 ) *client.Client {
 	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", vmToken))
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", latticeToken))
+	header.Add("authorization", fmt.Sprintf("Bearer %s", environmentToken))
+	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
 
 	for headerKey, headerValues := range additionalHeaders {
 		for _, headerValue := range headerValues {
@@ -216,7 +216,7 @@ func objectStoreClient(
 }
 
 type connectionOpts struct {
-	BaseURL         string `short:"b" name:"base-url"          required:""`
-	LatticeVMToken  string `short:"v" name:"lattice-vm-token"  required:""`
-	LatticeEnvToken string `short:"e" name:"lattice-env-token" required:""`
+	BaseURL          string `short:"b" name:"base-url"          required:""`
+	EnvironmentToken string `short:"v" name:"environment-token" required:""`
+	SandboxesToken   string `short:"e" name:"sandboxes-token"   required:""`
 }
