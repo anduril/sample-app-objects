@@ -37,10 +37,11 @@ $ go run main.go <command> [flags]
 Every command requires the following connection options:
 
 - **-b, --base-url**: Base URL for the object store service.
-- **-v, --environment-token**: Lattice environment token.
+- **-c, --client-id**: Client ID for OAuth 2.0 client credentials authentication.
+- **-s, --client-secret**: Client Secret for OAuth 2.0 client credentials authentication.
 - **-e, --sandboxes-token**: Lattice sandboxes token.
 
-For information on how to obtain these tokens, see the [Sandboxes documentation](https://developer.anduril.com/guides/getting-started/sandboxes#get-the-tokens).
+For information on how to obtain the client credentials and sandboxes token, see the [Sandboxes documentation](https://developer.anduril.com/guides/getting-started/sandboxes#get-the-tokens).
 
 The CLI supports five subcommands: **delete**, **upload**, **object-metadata**, **get**, and **list**.
 
@@ -52,12 +53,12 @@ Remove a file or object from the object store.
 
 Usage:
 ```
-$ sample-app-objects delete -b <base-url> -v <environment-token> -e <sandboxes-token> -p <path>
+$ sample-app-objects delete -b <base-url> -c <client-id> -s <client-secret> -e <sandboxes-token> -p <path>
 ```
 
 Example:
 ```
-$ sample-app-objects delete -b lattice-00000.env.sandboxes.developer.anduril.com -v my-environment-token -e my-sandboxes-token -p some/path/to/object
+$ sample-app-objects delete -b lattice-00000.env.sandboxes.developer.anduril.com -c my-client-id -s my-client-secret -e my-sandboxes-token -p some/path/to/object
 ```
 
 #### Upload
@@ -66,11 +67,11 @@ Upload a file to the object store. Optionally, specify a TTL (time-to-live) for 
 
 Usage:
 ```
-$ sample-app-objects upload -b <base-url> -v <environment-token> -e <sandboxes-token> -i <input-file-path> -p <object-store-path> [-t <time-to-live>]
+$ sample-app-objects upload -b <base-url> -c <client-id> -s <client-secret> -e <sandboxes-token> -i <input-file-path> -p <object-store-path> [-t <time-to-live>]
 ```
 Example:
 ```
-$ sample-app-objects upload -b lattice-00000.env.sandboxes.developer.anduril.com -v my-environment-token -e my-sandboxes-token -i ./localfile.txt -p object/file.txt -t 2h
+$ sample-app-objects upload -b lattice-00000.env.sandboxes.developer.anduril.com -c my-client-id -s my-client-secret -e my-sandboxes-token -i ./localfile.txt -p object/file.txt -t 2h
 ```
 
 > The `-t` flag accepts duration strings (e.g., "2h", "30m").
@@ -81,12 +82,12 @@ Retrieve metadata for a specific object.
 
 Usage:
 ```
-$ sample-app-objects object-metadata -b <base-url> -v <environment-token> -e <sandboxes-token> -p <path>
+$ sample-app-objects object-metadata -b <base-url> -c <client-id> -s <client-secret> -e <sandboxes-token> -p <path>
 ```
 
 Example:
 ```
-$ sample-app-objects object-metadata -b lattice-00000.env.sandboxes.developer.anduril.com -v my-environment-token -e my-sandboxes-token -p my-prefix/file.txt
+$ sample-app-objects object-metadata -b lattice-00000.env.sandboxes.developer.anduril.com -c my-client-id -s my-client-secret -e my-sandboxes-token -p my-prefix/file.txt
 ```
 
 #### Get
@@ -95,7 +96,7 @@ Download an object from the store and save it to a local file.
 
 Usage:
 ```
-$ sample-app-objects get -b <base-url> -v <environment-token> -e <sandboxes-token> -p <object-store-path> -o <output-file-path> [-r]
+$ sample-app-objects get -b <base-url> -c <client-id> -s <client-secret> -e <sandboxes-token> -p <object-store-path> -o <output-file-path> [-r]
 ```
 
 - **-p, --object-store-path**: Path in the object store to download.
@@ -104,7 +105,7 @@ $ sample-app-objects get -b <base-url> -v <environment-token> -e <sandboxes-toke
 
 Example:
 ```
-$ sample-app-objects get -b lattice-00000.env.sandboxes.developer.anduril.com -v my-environment-token -e my-sandboxes-token -p my-prefix/file.txt -o ./downloaded.txt
+$ sample-app-objects get -b lattice-00000.env.sandboxes.developer.anduril.com -c my-client-id -s my-client-secret -e my-sandboxes-token -p my-prefix/file.txt -o ./downloaded.txt
 ```
 
 #### List
@@ -113,7 +114,7 @@ List objects stored in the object store. Optionally filter results by a prefix.
 
 Usage:
 ```
-$ sample-app-objects list -b <base-url> -v <environment-token> -e <sandboxes-token> [prefix]
+$ sample-app-objects list -b <base-url> -c <client-id> -s <client-secret> -e <sandboxes-token> [prefix]
 ```
 
 If a prefix is provided, only objects with that prefix will be listed.
@@ -121,5 +122,5 @@ If a prefix is provided, only objects with that prefix will be listed.
 Example:
 
 ```
-$ sample-app-objects list -b lattice-00000.env.sandboxes.developer.anduril.com -v my-environment-token -e my-sandboxes-token my/prefix
+$ sample-app-objects list -b lattice-00000.env.sandboxes.developer.anduril.com -c my-client-id -s my-client-secret -e my-sandboxes-token my/prefix
 ```

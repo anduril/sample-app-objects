@@ -31,7 +31,7 @@ type deleteCmd struct {
 }
 
 func (d *deleteCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(d.BaseURL, d.EnvironmentToken, d.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(d.BaseURL, d.ClientID, d.ClientSecret, d.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -65,7 +65,8 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 
 	objectStoreClient := objectStoreClient(
 		u.BaseURL,
-		u.EnvironmentToken,
+		u.ClientID,
+		u.ClientSecret,
 		u.SandboxesToken,
 		ttlHeader,
 	)
@@ -101,7 +102,7 @@ type objectMetadataCmd struct {
 }
 
 func (o *objectMetadataCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.EnvironmentToken, o.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.ClientID, o.ClientSecret, o.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -126,7 +127,7 @@ type getCmd struct {
 }
 
 func (o *getCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.EnvironmentToken, o.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(o.BaseURL, o.ClientID, o.ClientSecret, o.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -157,7 +158,7 @@ type listCmd struct {
 }
 
 func (l *listCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(l.BaseURL, l.EnvironmentToken, l.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(l.BaseURL, l.ClientID, l.ClientSecret, l.SandboxesToken, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -195,12 +196,12 @@ func pathMetadataStr(pathMetadata *api.PathMetadata) (string, error) {
 
 func objectStoreClient(
 	url string,
-	environmentToken string,
+	clientID string,
+	clientSecret string,
 	sandboxesToken string,
 	additionalHeaders http.Header,
 ) *client.Client {
 	header := http.Header{}
-	header.Add("authorization", fmt.Sprintf("Bearer %s", environmentToken))
 	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
 
 	for headerKey, headerValues := range additionalHeaders {
@@ -211,12 +212,14 @@ func objectStoreClient(
 
 	return client.NewClient(
 		option.WithBaseURL(url),
+		option.WithClientCredentials(clientID, clientSecret),
 		option.WithHTTPHeader(header),
 	)
 }
 
 type connectionOpts struct {
-	BaseURL          string `short:"b" name:"base-url"          required:""`
-	EnvironmentToken string `short:"v" name:"environment-token" required:""`
-	SandboxesToken   string `short:"e" name:"sandboxes-token"   required:""`
+	BaseURL        string `short:"b" name:"base-url"    required:""`
+	ClientID       string `short:"c" name:"client-id"   required:""`
+	ClientSecret   string `short:"s" name:"client-secret" required:""`
+	SandboxesToken string `short:"e" name:"sandboxes-token" required:""`
 }
