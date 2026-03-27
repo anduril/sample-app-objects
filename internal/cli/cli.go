@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/alecthomas/kong"
-	api "github.com/anduril/lattice-sdk-go/v2"
-	client "github.com/anduril/lattice-sdk-go/v2/client"
-	option "github.com/anduril/lattice-sdk-go/v2/option"
+	api "github.com/anduril/lattice-sdk-go/v4"
+	client "github.com/anduril/lattice-sdk-go/v4/client"
+	option "github.com/anduril/lattice-sdk-go/v4/option"
 )
 
 type cli struct {
@@ -36,7 +36,7 @@ func (d *deleteCmd) Run(kongCtx *kong.Context) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := objectStoreClient.Objects.DeleteObject(ctx, d.Path); err != nil {
+	if err := objectStoreClient.Objects.DeleteObject(ctx, &api.DeleteObjectRequest{ObjectPath: d.Path}); err != nil {
 		return fmt.Errorf("unable to delete path %q: %w", d.Path, err)
 	}
 	fmt.Printf("deleted path %q\n", d.Path)
@@ -77,7 +77,7 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 	if err != nil {
 		return fmt.Errorf("unable to open file %q: %w", u.InputPath, err)
 	}
-	defer fileReader.Close()
+	defer func() { _ = fileReader.Close() }()
 
 	fileBytes, err := io.ReadAll(fileReader)
 	if err != nil {
@@ -107,7 +107,7 @@ func (o *objectMetadataCmd) Run(kongCtx *kong.Context) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	header, err := objectStoreClient.Objects.WithRawResponse.GetObjectMetadata(ctx, o.Path)
+	header, err := objectStoreClient.Objects.WithRawResponse.GetObjectMetadata(ctx, &api.GetObjectMetadataRequest{ObjectPath: o.Path})
 	if err != nil {
 		return fmt.Errorf("unable to get object metadata for path %q, err=%w", o.Path, err)
 	}
@@ -132,8 +132,7 @@ func (o *getCmd) Run(kongCtx *kong.Context) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	request := &api.GetObjectRequest{}
-	objectReader, err := objectStoreClient.Objects.GetObject(ctx, o.ObjectStorePath, request)
+	objectReader, err := objectStoreClient.Objects.GetObject(ctx, &api.GetObjectRequest{ObjectPath: o.ObjectStorePath})
 	if err != nil {
 		return fmt.Errorf("unable to get file %q from object store: %w", o.ObjectStorePath, err)
 	}
@@ -142,7 +141,7 @@ func (o *getCmd) Run(kongCtx *kong.Context) error {
 	if err != nil {
 		return fmt.Errorf("unable to create writer for %q: %w", o.OutputPath, err)
 	}
-	defer outputWriter.Close()
+	defer func() { _ = outputWriter.Close() }()
 
 	bytesCopied, err := io.Copy(outputWriter, objectReader)
 	if err != nil {
