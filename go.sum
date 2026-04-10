@@ -4,8 +4,8 @@ github.com/alecthomas/kong v1.11.0 h1:y++1gI7jf8O7G7l4LZo5ASFhrhJvzc+WgF/arranEm
 github.com/alecthomas/kong v1.11.0/go.mod h1:p2vqieVMeTAnaC83txKtXe8FLke2X07aruPWXyMPQrU=
 github.com/alecthomas/repr v0.4.0 h1:GhI2A8MACjfegCPVq9f1FLvIBS+DrQ2KQBFZP1iFzXc=
 github.com/alecthomas/repr v0.4.0/go.mod h1:Fr0507jx4eOXV7AlPV6AVZLYrLIuIeSOWtW57eE/O/4=
-github.com/anduril/lattice-sdk-go/v2 v2.2.0 h1:7qEveGHtCoKd81of9PjPkNMLMCVMXMiJKwSVvavQIrY=
-github.com/anduril/lattice-sdk-go/v2 v2.2.0/go.mod h1:LZXFUrBP6Zuq+IhNpqN1tiaMuC2WayvxlGVO+ApesKo=
+github.com/anduril/lattice-sdk-go/v4 v4.5.0 h1:miiQk94+fRa5ZqokWy4uZL533/4qDGxbMOXYS262E4k=
+github.com/anduril/lattice-sdk-go/v4 v4.5.0/go.mod h1:bGvU1erf9umZBBtdWyJn2mGtHPCx5g4mub97naVrOmM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
