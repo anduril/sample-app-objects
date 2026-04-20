@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/alecthomas/kong v1.15.0
-	github.com/anduril/lattice-sdk-go/v4 v4.5.0
+	github.com/anduril/lattice-sdk-go/v4 v4.9.0
 )
 
 require (
