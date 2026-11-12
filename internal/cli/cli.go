@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -31,7 +33,7 @@ type deleteCmd struct {
 }
 
 func (d *deleteCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(d.BaseURL, d.ClientID, d.ClientSecret, d.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(d.connectionOpts, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -63,13 +65,7 @@ func (u *uploadCmd) Run(kongCtx *kong.Context) error {
 	ttlHeader := http.Header{}
 	ttlHeader.Add("Time-To-Live", strconv.FormatInt(int64(ttl), 10))
 
-	objectStoreClient := objectStoreClient(
-		u.BaseURL,
-		u.ClientID,
-		u.ClientSecret,
-		u.SandboxesToken,
-		ttlHeader,
-	)
+	objectStoreClient := objectStoreClient(u.connectionOpts, ttlHeader)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -102,7 +98,7 @@ type objectMetadataCmd struct {
 }
 
 func (o *objectMetadataCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.ClientID, o.ClientSecret, o.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(o.connectionOpts, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -127,7 +123,7 @@ type getCmd struct {
 }
 
 func (o *getCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(o.BaseURL, o.ClientID, o.ClientSecret, o.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(o.connectionOpts, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -157,7 +153,7 @@ type listCmd struct {
 }
 
 func (l *listCmd) Run(kongCtx *kong.Context) error {
-	objectStoreClient := objectStoreClient(l.BaseURL, l.ClientID, l.ClientSecret, l.SandboxesToken, nil)
+	objectStoreClient := objectStoreClient(l.connectionOpts, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -193,15 +189,9 @@ func pathMetadataStr(pathMetadata *api.PathMetadata) (string, error) {
 	return string(enc), nil
 }
 
-func objectStoreClient(
-	url string,
-	clientID string,
-	clientSecret string,
-	sandboxesToken string,
-	additionalHeaders http.Header,
-) *client.Client {
+func objectStoreClient(opts connectionOpts, additionalHeaders http.Header) *client.Client {
 	header := http.Header{}
-	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", sandboxesToken))
+	header.Add("anduril-sandbox-authorization", fmt.Sprintf("Bearer %s", opts.SandboxesToken))
 
 	for headerKey, headerValues := range additionalHeaders {
 		for _, headerValue := range headerValues {
@@ -209,16 +199,34 @@ func objectStoreClient(
 		}
 	}
 
+	baseURL := opts.BaseURL
+	if !strings.Contains(baseURL, "://") {
+		baseURL = "https://" + baseURL
+	}
+
+	var authOption option.RequestOption = option.WithClientCredentials(opts.ClientID, opts.ClientSecret)
+	if opts.EnvironmentToken != "" {
+		authOption = option.WithToken(opts.EnvironmentToken)
+	}
+
 	return client.NewClient(
-		option.WithBaseURL(url),
-		option.WithClientCredentials(clientID, clientSecret),
+		option.WithBaseURL(baseURL),
+		authOption,
 		option.WithHTTPHeader(header),
 	)
 }
 
 type connectionOpts struct {
-	BaseURL        string `short:"b" name:"base-url"    required:""`
-	ClientID       string `short:"c" name:"client-id"   required:""`
-	ClientSecret   string `short:"s" name:"client-secret" required:""`
-	SandboxesToken string `short:"e" name:"sandboxes-token" required:""`
+	BaseURL          string `short:"b" name:"base-url"    required:""`
+	ClientID         string `short:"c" name:"client-id"`
+	ClientSecret     string `short:"s" name:"client-secret"`
+	EnvironmentToken string `name:"environment-token"`
+	SandboxesToken   string `short:"e" name:"sandboxes-token" required:""`
+}
+
+func (c *connectionOpts) Validate() error {
+	if c.EnvironmentToken == "" && (c.ClientID == "" || c.ClientSecret == "") {
+		return errors.New("set --environment-token, or --client-id and --client-secret")
+	}
+	return nil
 }

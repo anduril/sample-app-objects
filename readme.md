@@ -39,9 +39,10 @@ Every command requires the following connection options:
 - **-b, --base-url**: Base URL for the object store service.
 - **-c, --client-id**: Client ID for OAuth 2.0 client credentials authentication.
 - **-s, --client-secret**: Client Secret for OAuth 2.0 client credentials authentication.
+- **--environment-token**: Lattice environment token. Use instead of the client ID and secret.
 - **-e, --sandboxes-token**: Lattice sandboxes token.
 
-For information on how to obtain the client credentials and sandboxes token, see the [Sandboxes documentation](https://developer.anduril.com/guides/getting-started/sandboxes#get-the-tokens).
+For information on how to obtain these credentials, see the [Sandboxes documentation](https://developer.anduril.com/guides/developer-tools/sandboxes#set-up-credentials).
 
 The CLI supports five subcommands: **delete**, **upload**, **object-metadata**, **get**, and **list**.
 
